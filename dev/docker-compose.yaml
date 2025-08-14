@@ -1,0 +1,54 @@
+version: "3.8"
+
+services:
+  frontend:
+    image: registry.simpletactics.de/sitafrontend:2025-08-10.52
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        order: start-first
+      restart_policy:
+        condition: on-failure
+    networks:
+      - main
+
+  backend:
+    image: registry.simpletactics.de/sitabackend:2025-08-10.72
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        order: start-first
+      restart_policy:
+        condition: on-failure
+    environment:
+      - TZ=Europe/Berlin
+    networks:
+      - main
+    secrets:
+      - DB_USERNAME
+      - DB_PASSWORD
+      - SITA_BOT_ALERTING_URL
+      - source: DB_CONNECTION_STRING_DEV
+        target: DB_CONNECTION_STRING
+        mode: 0400
+      - source: SITA_BOT_ALERTING_CHANNEL_ID_DEV
+        target: SITA_BOT_ALERTING_CHANNEL_ID
+        mode: 0400
+
+networks:
+  main:
+    external: true
+
+secrets:
+  DB_USERNAME:
+    external: true
+  DB_PASSWORD:
+    external: true
+  DB_CONNECTION_STRING_DEV:
+    external: true
+  SITA_BOT_ALERTING_URL:
+    external: true
+  SITA_BOT_ALERTING_CHANNEL_ID_DEV:
+    external: true
