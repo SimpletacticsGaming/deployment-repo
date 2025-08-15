@@ -21,6 +21,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
+          fingerprint: ${{ secrets.FINGERPRINT }}
           strip_components: 1
           source: dev/*
           target: ${{ secrets.TARGET_PATH }}
@@ -33,6 +34,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
+          fingerprint: ${{ secrets.FINGERPRINT }}
           script: |
             cd ${{ secrets.TARGET_PATH }}
             bash deploy.sh ${{ secrets.STACK_NAME }}
