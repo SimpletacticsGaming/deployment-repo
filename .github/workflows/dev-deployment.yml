@@ -12,6 +12,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Validate docker compose file
+        run: docker compose -f dev/docker-compose.yaml config
+
       - name: Copy docker-compose.yml to server
         uses: appleboy/scp-action@v0.1.7
         with:
