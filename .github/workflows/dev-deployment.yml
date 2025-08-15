@@ -1,0 +1,39 @@
+name: pipeline
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'dev/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate docker compose file
+        run: docker compose -f dev/docker-compose.yaml config
+
+      - name: Copy docker-compose.yml to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          fingerprint: ${{ secrets.FINGERPRINT }}
+          strip_components: 1
+          source: dev/*
+          target: ${{ secrets.TARGET_PATH }}
+          overwrite: true
+
+      - name: Deploy to dev
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          fingerprint: ${{ secrets.FINGERPRINT }}
+          script: |
+            cd ${{ secrets.TARGET_PATH }}
+            bash deploy.sh ${{ secrets.STACK_NAME }}
