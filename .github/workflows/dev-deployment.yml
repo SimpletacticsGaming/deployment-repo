@@ -26,7 +26,6 @@ jobs:
           source: dev/*
           target: ${{ secrets.TARGET_PATH }}
           overwrite: true
-          debug: true
 
       - name: Deploy to dev
         uses: appleboy/ssh-action@v1
