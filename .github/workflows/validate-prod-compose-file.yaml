@@ -1,0 +1,17 @@
+name: Validate Docker Compose
+
+on:
+  push:
+    branches-ignore: [main]
+    paths:
+      - 'prod/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Validate docker compose file
+        run: docker compose -f prod/docker-compose.yaml config

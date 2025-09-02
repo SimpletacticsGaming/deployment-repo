@@ -9,7 +9,7 @@ The file contains the configuration for the services and their dependencies like
 variables or secrets. 
 Each stage has its own configuration which resides in the stage folder (currently: prod and dev).
 - For dev deployment, use the [`docker-compose.yml`](dev/docker-compose.yaml) in the [`dev`](dev) directory.
-- (Coming soon) For production, use the `docker-compose.yaml` in the `prod` directory.
+- For production, use the [`docker-compose.yaml`](prod/docker-compose.yaml) in the [`prod`](prod) directory.
 
 In most cases you only have to change the image tag to your needs.
 
