@@ -1,4 +1,4 @@
-name: Validate Docker Compose
+name: Validate dev docker compose
 
 on:
   push:
