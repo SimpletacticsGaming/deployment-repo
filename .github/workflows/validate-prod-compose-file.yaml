@@ -1,10 +1,10 @@
-name: Validate dev docker compose
+name: Validate prod docker compose
 
 on:
   push:
     branches-ignore: [main]
     paths:
-      - 'dev/**'
+      - 'prod/**'
 
 jobs:
   validate:
@@ -14,4 +14,4 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Validate docker compose file
-        run: docker compose -f dev/docker-compose.yaml config
+        run: docker compose -f prod/docker-compose.yaml config
