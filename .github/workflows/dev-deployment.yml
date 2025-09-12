@@ -6,9 +6,13 @@ on:
     paths:
       - 'dev/**'
 
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: development
+      url: https://dev.simpletactics.de/
     steps:
       - uses: actions/checkout@v4
 
