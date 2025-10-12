@@ -1,6 +1,6 @@
 services:
   frontend:
-    image: registry.simpletactics.de/sitafrontend:2025-10-10.89
+    image: registry.simpletactics.de/sitafrontend:2025-10-12.91
     deploy:
       replicas: 1
       update_config:
