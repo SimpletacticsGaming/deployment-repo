@@ -12,7 +12,7 @@ services:
       - main
 
   backend:
-    image: registry.simpletactics.de/sitabackend:2025-09-12.87
+    image: registry.simpletactics.de/sitabackend:2025-10-19.106
     deploy:
       replicas: 1
       update_config:
