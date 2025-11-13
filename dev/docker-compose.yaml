@@ -1,6 +1,6 @@
 services:
   frontend:
-    image: registry.simpletactics.de/sitafrontend:2025-11-12.121
+    image: registry.simpletactics.de/sitafrontend:2025-11-13.123
     deploy:
       replicas: 1
       update_config:
@@ -34,6 +34,18 @@ services:
       - source: SITA_BOT_ALERTING_CHANNEL_ID_DEV
         target: SITA_BOT_ALERTING_CHANNEL_ID
         mode: 0400
+
+  socket:
+    image: registry.simpletactics.de/sitasocket:2025-11-13.4
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        order: start-first
+      restart_policy:
+        condition: on-failure
+    networks:
+      - main
 
 networks:
   main:
