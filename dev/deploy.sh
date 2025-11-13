@@ -1,1 +1,1 @@
-docker stack deploy --with-registry-auth -d --compose-file docker-compose.yaml $1
+docker stack deploy -d --compose-file docker-compose.yaml $1
