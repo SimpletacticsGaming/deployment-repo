@@ -35,6 +35,18 @@ services:
         target: SITA_BOT_ALERTING_CHANNEL_ID
         mode: 0400
 
+  socket:
+    image: registry.simpletactics.de/sitasocket:1.0.0
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        order: start-first
+      restart_policy:
+        condition: on-failure
+    networks:
+      - main
+
 networks:
   main:
     external: true

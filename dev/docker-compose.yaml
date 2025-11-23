@@ -36,7 +36,7 @@ services:
         mode: 0400
 
   socket:
-    image: registry.simpletactics.de/sitasocket:2025-11-13.4
+    image: registry.simpletactics.de/sitasocket:1.0.0
     deploy:
       replicas: 1
       update_config:
