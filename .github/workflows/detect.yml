@@ -1,0 +1,38 @@
+name: Deploy stacks
+
+on:
+  push:
+    branches: [main, SW-1114-custom-resource-deploy]
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.changed.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22.x"
+
+      - id: changed
+        name: Detect changed compose directories
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+        run: go run ./scripts/detect-changed.go
+
+  trigger-create:
+    needs: detect
+    if: ${{ needs.detect.outputs.matrix != '[]' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Trigger deployment
+        uses: peter-evans/repository-dispatch@v4
+        with:
+          event-type: sita_create
+          client-payload: '{"matrix": ${{ needs.detect.outputs.matrix }}}'
