@@ -14,22 +14,14 @@ import (
 const zeroSHA = "0000000000000000000000000000000000000000"
 
 func main() {
-	before := strings.TrimSpace(os.Getenv("BEFORE_SHA"))
-	if before == "" {
-		exitErr("BEFORE_SHA is required")
+	before, err := gitOutput("rev-parse", "HEAD~1")
+	if err != nil {
+		exitErr(fmt.Sprintf("failed to resolve previous commit: %v", err))
 	}
 
-	after := strings.TrimSpace(os.Getenv("GITHUB_SHA"))
-	if after == "" {
-		exitErr("GITHUB_SHA is required")
-	}
-
-	if before == zeroSHA {
-		root, err := gitOutput("rev-list", "--max-parents=0", "HEAD")
-		if err != nil {
-			exitErr(fmt.Sprintf("failed to resolve root commit: %v", err))
-		}
-		before = strings.TrimSpace(root)
+	after, err := gitOutput("rev-parse", "HEAD")
+	if err != nil {
+		exitErr(fmt.Sprintf("failed to resolve current commit: %v", err))
 	}
 
 	changed, err := gitOutput("diff", "--name-only", before, after)
@@ -63,7 +55,7 @@ func gitOutput(args ...string) (string, error) {
 	if err := cmd.Run(); err != nil {
 		return "", fmt.Errorf("%v: %s", err, strings.TrimSpace(stderr.String()))
 	}
-	return stdout.String(), nil
+	return strings.TrimSpace(stdout.String()), nil
 }
 
 func uniqueComposeDirs(files []string) []string {
