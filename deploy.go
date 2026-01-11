@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"path/filepath"
 )
 
 func main() {
@@ -15,12 +14,10 @@ func main() {
 	}
 }
 
-func deployDir(dir string) error {
-	stackName := filepath.Base(dir)
-	composeFilePath := filepath.Join(dir, "docker-composeFilePath.yaml")
-	fmt.Printf("Deploying stack '%s' from %s\n", stackName, dir)
+func deployDir(stackName string) error {
+	fmt.Printf("Deploying stack '%s'\n", stackName)
 
-	cmd := exec.Command("docker", "stack", "deploy", "-d", "--composeFilePath-file", composeFilePath, stackName)
+	cmd := exec.Command("docker", "stack", "deploy", "-d", "--compose-file docker-compose.yaml", stackName)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
