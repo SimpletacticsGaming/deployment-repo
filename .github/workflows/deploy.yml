@@ -27,51 +27,51 @@ jobs:
       - name: Print matrix directory
         run: echo "Deploying stack in directory ${{ matrix.dir }}"
 
-#      - name: Ensure target directory exists
-#        uses: appleboy/ssh-action@v1
-#        with:
-#          host: ${{ secrets.HOST }}
-#          username: ${{ secrets.USERNAME }}
-#          key: ${{ secrets.KEY }}
-#          fingerprint: ${{ secrets.FINGERPRINT }}
-#          script: |
-#            mkdir -p ${{ secrets.TARGET_BASE_PATH }}/${{ matrix.dir }}
-#
-#      - name: Copy compose directory to server
-#        uses: appleboy/scp-action@v0.1.7
-#        with:
-#          host: ${{ secrets.HOST }}
-#          username: ${{ secrets.USERNAME }}
-#          key: ${{ secrets.KEY }}
-#          fingerprint: ${{ secrets.FINGERPRINT }}
-#          strip_components: 1
-#          source: ${{ matrix.dir }}/*
-#          target: ${{ secrets.TARGET_BASE_PATH }}/${{ matrix.dir }}
-#          overwrite: true
-#
-#      - name: Copy deploy binary to server
-#        uses: appleboy/scp-action@v0.1.7
-#        with:
-#          host: ${{ secrets.HOST }}
-#          username: ${{ secrets.USERNAME }}
-#          key: ${{ secrets.KEY }}
-#          fingerprint: ${{ secrets.FINGERPRINT }}
-#          source: deploy
-#          target: ${{ secrets.TARGET_BASE_PATH }}/${{ matrix.dir }}
-#          overwrite: true
-#
-#      - name: Deploy stack
-#        uses: appleboy/ssh-action@v1
-#        with:
-#          host: ${{ secrets.HOST }}
-#          username: ${{ secrets.USERNAME }}
-#          key: ${{ secrets.KEY }}
-#          fingerprint: ${{ secrets.FINGERPRINT }}
-#          script: |
-#            cd ${{ secrets.TARGET_BASE_PATH }}/${{ matrix.dir }}
-#            chmod +x deploy
-#            ./deploy
-#
+      - name: Ensure target directory exists
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          fingerprint: ${{ secrets.FINGERPRINT }}
+          script: |
+            mkdir -p ${{ secrets.TARGET_BASE_PATH }}/${{ matrix.dir }}
+
+      - name: Copy compose directory to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          fingerprint: ${{ secrets.FINGERPRINT }}
+          strip_components: 1
+          source: ${{ matrix.dir }}/*
+          target: ${{ secrets.TARGET_BASE_PATH }}/${{ matrix.dir }}
+          overwrite: true
+
+      - name: Copy deploy binary to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          fingerprint: ${{ secrets.FINGERPRINT }}
+          source: deploy
+          target: ${{ secrets.TARGET_BASE_PATH }}/${{ matrix.dir }}
+          overwrite: true
+
+      - name: Deploy stack
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          fingerprint: ${{ secrets.FINGERPRINT }}
+          script: |
+            cd ${{ secrets.TARGET_BASE_PATH }}/${{ matrix.dir }}
+            chmod +x deploy
+            ./deploy ${{ matrix.dir }}
+
 #      - name: Ensure target directory is removed
 #        uses: appleboy/ssh-action@v1
 #        with:
