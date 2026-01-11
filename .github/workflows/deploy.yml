@@ -44,8 +44,8 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           fingerprint: ${{ secrets.FINGERPRINT }}
-          strip_components: 1
-          source: ${{ matrix.dir }}/*
+          strip_components: 2
+          source: ${{ matrix.dir }}/docker-compose.yaml
           target: ${{ secrets.TARGET_BASE_PATH }}/${{ matrix.dir }}
           overwrite: true
 
@@ -70,14 +70,14 @@ jobs:
           script: |
             cd ${{ secrets.TARGET_BASE_PATH }}/${{ matrix.dir }}
             chmod +x deploy
-            ./deploy ${{ matrix.dir }}
+            ./deploy $(echo "${{ matrix.dir }}" | tr / -)
 
-#      - name: Ensure target directory is removed
-#        uses: appleboy/ssh-action@v1
-#        with:
-#          host: ${{ secrets.HOST }}
-#          username: ${{ secrets.USERNAME }}
-#          key: ${{ secrets.KEY }}
-#          fingerprint: ${{ secrets.FINGERPRINT }}
-#          script: |
-#            rm -r ${{ secrets.TARGET_BASE_PATH }}/${{ matrix.dir }}
+      - name: Ensure target directory is removed
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          fingerprint: ${{ secrets.FINGERPRINT }}
+          script: |
+            rm -r ${{ secrets.TARGET_BASE_PATH }}/${{ matrix.dir }}

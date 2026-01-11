@@ -63,28 +63,37 @@ func uniqueComposeDirs(files []string) []string {
 		if file == "" {
 			continue
 		}
-		dir, _ := splitTopDir(file)
-		if dir == "" {
-			continue
-		}
-		if _, err := os.Stat(filepath.Join(dir, "docker-compose.yaml")); err == nil {
-			seen[dir] = struct{}{}
+		_, stack := composeDirForFile(file)
+		if stack != "" {
+			seen[stack] = struct{}{}
 		}
 	}
 	dirs := make([]string, 0, len(seen))
-	for dir := range seen {
-		dirs = append(dirs, dir)
+	for stack := range seen {
+		dirs = append(dirs, stack)
 	}
 	return dirs
 }
 
-func splitTopDir(path string) (string, bool) {
+func composeDirForFile(path string) (string, string) {
 	clean := filepath.ToSlash(strings.TrimPrefix(path, "./"))
-	parts := strings.SplitN(clean, "/", 2)
+	parts := strings.Split(clean, "/")
 	if len(parts) < 2 || parts[0] == "" {
-		return "", false
+		return "", ""
 	}
-	return parts[0], true
+
+	if len(parts) >= 3 && parts[1] != "" {
+		subdir := filepath.Join(parts[0], parts[1])
+		if _, err := os.Stat(filepath.Join(subdir, "docker-compose.yaml")); err == nil {
+			return subdir, parts[0] + "/" + parts[1]
+		}
+	}
+
+	top := parts[0]
+	if _, err := os.Stat(filepath.Join(top, "docker-compose.yaml")); err == nil {
+		return top, top
+	}
+	return "", ""
 }
 
 func appendOutput(path, key, value string) error {

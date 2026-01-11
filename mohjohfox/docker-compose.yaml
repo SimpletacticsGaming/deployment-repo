@@ -3,6 +3,8 @@ services:
     image: benbusby/whoogle-search:latest
     container_name: whoogle-search
     restart: unless-stopped
+    deploy:
+      replicas: 1
 
       #environment: # Uncomment to configure environment variables
       # Basic auth configuration, uncomment to enable
