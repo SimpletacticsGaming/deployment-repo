@@ -3,6 +3,7 @@ services:
     image: benbusby/whoogle-search:latest
     container_name: whoogle-search
     restart: unless-stopped
+
       #environment: # Uncomment to configure environment variables
       # Basic auth configuration, uncomment to enable
       #- WHOOGLE_USER=<auth username>
@@ -30,7 +31,3 @@ services:
       #- whoogle.env
     ports:
       - "5000:5000"
-
-networks:
-  main:
-    external: true
