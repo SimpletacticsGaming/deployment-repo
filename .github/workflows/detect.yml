@@ -26,13 +26,6 @@ jobs:
 
   trigger-create:
     needs: detect
-    if: ${{ needs.detect.outputs.matrix != '[]' }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Trigger deployment
-        uses: peter-evans/repository-dispatch@v4
-        with:
-          event-type: sita_create
-          client-payload: '{"matrix": ${{ needs.detect.outputs.matrix }}}'
+    uses: .github/workflows/deploy@SW-1114-custom-resource-deploy
+    with:
+      matrix: '{"matrix": ${{ needs.detect.outputs.matrix }}}'

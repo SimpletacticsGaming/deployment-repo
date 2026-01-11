@@ -1,16 +1,19 @@
 name: Deploy stacks
 
 on:
-  repository_dispatch:
-    types: [sita_create]
+  workflow_call:
+    inputs:
+      matrix:
+        required: true
+        type: string
 
 jobs:
   deploy:
-    if: ${{ github.event.client_payload.matrix && github.event.client_payload.matrix != '' }}
+    if: ${{ inputs.matrix && inputs.matrix != '' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dir: ${{ github.event.client_payload.matrix }}
+        dir: ${{ inputs.matrix }}
     environment:
       name: ${{ matrix.dir }}
     steps:
