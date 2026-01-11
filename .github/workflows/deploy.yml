@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dir: ${{ inputs.matrix }}
+        dir: ${{ fromJson(inputs.matrix) }}
     environment:
       name: ${{ matrix.dir }}
     steps:
