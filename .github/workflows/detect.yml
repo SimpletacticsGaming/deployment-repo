@@ -26,6 +26,6 @@ jobs:
 
   trigger-create:
     needs: detect
-    uses: .github/workflows/deploy@SW-1114-custom-resource-deploy
+    uses: ./.github/workflows/deploy.yml
     with:
-      matrix: '{"matrix": ${{ needs.detect.outputs.matrix }}}'
+      matrix: ${{ needs.detect.outputs.matrix }}
