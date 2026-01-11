@@ -11,8 +11,6 @@ import (
 	"strings"
 )
 
-const zeroSHA = "0000000000000000000000000000000000000000"
-
 func main() {
 	before, err := gitOutput("rev-parse", "HEAD~1")
 	if err != nil {
