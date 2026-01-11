@@ -1,4 +1,4 @@
-name: Deploy stacks
+name: Deploy stages
 
 on:
   push:
