@@ -27,5 +27,6 @@ jobs:
   trigger-create:
     needs: detect
     uses: ./.github/workflows/deploy.yml
+    secrets: inherit
     with:
       matrix: ${{ needs.detect.outputs.matrix }}
