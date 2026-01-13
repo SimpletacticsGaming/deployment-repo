@@ -1,26 +1,14 @@
 services:
   frontend:
     image: ghcr.io/steffenburgert/frontend:0.0.1-snapshot-aoc-infra
+    container_name: aoc
+    restart: unless-stopped
     deploy:
       replicas: 1
-      update_config:
-        parallelism: 1
-        order: start-first
-      restart_policy:
-        condition: on-failure
-    networks:
-      - main
 
   backend:
     image: ghcr.io/steffenburgert/backend:0.0.1-snapshot-aoc-infra
+    container_name: aoc
+    restart: unless-stopped
     deploy:
       replicas: 1
-      update_config:
-        parallelism: 1
-        order: start-first
-      restart_policy:
-        condition: on-failure
-    environment:
-      - TZ=Europe/Berlin
-    networks:
-      - main
