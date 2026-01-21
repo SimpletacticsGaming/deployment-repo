@@ -3,6 +3,7 @@ name: Deploy stages
 on:
   push:
     branches: [main, SW-1114-custom-resource-deploy]
+    paths: ['**/docker-compose.yaml']
 
 jobs:
   detect:
@@ -24,7 +25,7 @@ jobs:
           BEFORE_SHA: ${{ github.event.before }}
         run: go run ./scripts/detect-changed.go
 
-  trigger-create:
+  trigger-deploy:
     needs: detect
     uses: ./.github/workflows/deploy.yml
     secrets: inherit

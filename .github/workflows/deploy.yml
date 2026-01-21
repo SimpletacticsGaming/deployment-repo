@@ -13,9 +13,12 @@ jobs:
       matrix:
         dir: ${{ fromJson(inputs.matrix) }}
     environment:
-      name: ${{ matrix.dir }}
+      name: $(echo "${{ matrix.dir }}" | tr / -)
     steps:
       - uses: actions/checkout@v4
+
+      - name: Validate docker compose file
+        run: docker compose -f ${{ matrix.dir }}/docker-compose.yaml config
 
       - uses: actions/setup-go@v5
         with:
