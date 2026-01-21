@@ -4,11 +4,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
-          memory: 50M
+          cpus: '0.50'
+          memory: 500M
         reservations:
-          cpus: '0.20'
-          memory: 20M
+          cpus: '0.25'
+          memory: 250M
       replicas: 1
       update_config:
         parallelism: 1
@@ -23,11 +23,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
-          memory: 50M
+          cpus: '0.50'
+          memory: 500M
         reservations:
-          cpus: '0.20'
-          memory: 20M
+          cpus: '0.25'
+          memory: 250M
       replicas: 1
       update_config:
         parallelism: 1
@@ -54,10 +54,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
+          cpus: '0.50'
           memory: 50M
         reservations:
-          cpus: '0.20'
+          cpus: '0.25'
           memory: 20M
       replicas: 1
       update_config:

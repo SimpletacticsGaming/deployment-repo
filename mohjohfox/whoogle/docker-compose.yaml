@@ -1,7 +1,6 @@
 services:
   whoogle-search:
     image: benbusby/whoogle-search:latest
-    container_name: whoogle-search
     restart: unless-stopped
     deploy:
       resources:

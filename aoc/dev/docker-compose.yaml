@@ -7,23 +7,22 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.25'
-          memory: 50M
+          cpus: '0.50'
+          memory: 500M
         reservations:
-          cpus: '0.20'
-          memory: 20M
+          cpus: '0.25'
+          memory: 250M
       replicas: 1
 
   backend:
     image: ghcr.io/steffenburgert/backend:0.0.1-snapshot-aoc-infra
-    container_name: aoc-backend
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: '0.25'
-          memory: 50M
+          cpus: '0.50'
+          memory: 500M
         reservations:
-          cpus: '0.20'
-          memory: 20M
+          cpus: '0.25'
+          memory: 250M
       replicas: 1
