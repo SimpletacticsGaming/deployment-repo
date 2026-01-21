@@ -11,9 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dir: ${{ fromJson(inputs.matrix) }}
+        include: ${{ fromJson(inputs.matrix) }}
     environment:
-      name: $(echo "${{ matrix.dir }}" | tr / -)
+      name: ${{ matrix.env }}
     steps:
       - uses: actions/checkout@v4
 

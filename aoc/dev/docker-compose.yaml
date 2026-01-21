@@ -2,14 +2,28 @@
 services:
   frontend:
     image: ghcr.io/steffenburgert/frontend:0.0.1-snapshot-aoc-infra
-    container_name: aoc
+    container_name: aoc-frontend
     restart: unless-stopped
     deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 50M
+        reservations:
+          cpus: '0.20'
+          memory: 20M
       replicas: 1
 
   backend:
     image: ghcr.io/steffenburgert/backend:0.0.1-snapshot-aoc-infra
-    container_name: aoc
+    container_name: aoc-backend
     restart: unless-stopped
     deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 50M
+        reservations:
+          cpus: '0.20'
+          memory: 20M
       replicas: 1

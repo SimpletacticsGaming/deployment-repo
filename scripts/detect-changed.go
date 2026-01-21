@@ -11,6 +11,11 @@ import (
 	"strings"
 )
 
+type matrixEntry struct {
+	Dir string `json:"dir"`
+	Env string `json:"env"`
+}
+
 func main() {
 	before, err := gitOutput("rev-parse", "HEAD~1")
 	if err != nil {
@@ -30,7 +35,15 @@ func main() {
 	dirs := uniqueComposeDirs(strings.FieldsFunc(changed, func(r rune) bool { return r == '\n' || r == '\r' }))
 	sort.Strings(dirs)
 
-	payload, err := json.Marshal(dirs)
+	entries := make([]matrixEntry, 0, len(dirs))
+	for _, dir := range dirs {
+		entries = append(entries, matrixEntry{
+			Dir: dir,
+			Env: strings.ReplaceAll(dir, "/", "-"),
+		})
+	}
+
+	payload, err := json.Marshal(entries)
 	if err != nil {
 		exitErr(fmt.Sprintf("failed to marshal matrix: %v", err))
 	}

@@ -4,6 +4,13 @@ services:
     container_name: whoogle-search
     restart: unless-stopped
     deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 50M
+        reservations:
+          cpus: '0.20'
+          memory: 20M
       replicas: 1
 
       #environment: # Uncomment to configure environment variables

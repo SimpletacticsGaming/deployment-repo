@@ -2,6 +2,13 @@ services:
   frontend:
     image: registry.simpletactics.de/sitafrontend:2.5.1
     deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+        reservations:
+          cpus: '0.25'
+          memory: 20M
       replicas: 1
       update_config:
         parallelism: 1
@@ -14,6 +21,13 @@ services:
   backend:
     image: registry.simpletactics.de/sitabackend:2.5.1
     deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+        reservations:
+          cpus: '0.25'
+          memory: 20M
       replicas: 1
       update_config:
         parallelism: 1
@@ -38,6 +52,13 @@ services:
   socket:
     image: registry.simpletactics.de/sitasocket:1.0.0
     deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+        reservations:
+          cpus: '0.25'
+          memory: 20M
       replicas: 1
       update_config:
         parallelism: 1
