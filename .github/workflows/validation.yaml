@@ -1,8 +1,6 @@
-name: Deploy stages
-
 on:
   push:
-    branches: [main]
+    branches-ignore: [main]
     paths: ['**/docker-compose.yaml']
 
 jobs:
@@ -25,9 +23,17 @@ jobs:
           BEFORE_SHA: ${{ github.event.before }}
         run: go run ./scripts/detect-changed.go
 
-  trigger-deploy:
+  deploy:
+    runs-on: ubuntu-latest
     needs: detect
-    uses: ./.github/workflows/deploy.yml
-    secrets: inherit
-    with:
-      matrix: ${{ needs.detect.outputs.matrix }}
+    strategy:
+      matrix:
+        include: ${{ fromJson(needs.detect.outputs.matrix) }}
+    environment:
+      name: ${{ matrix.env }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate docker compose file
+        run: docker compose -f ${{ matrix.dir }}/docker-compose.yaml config
+

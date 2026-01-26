@@ -76,7 +76,7 @@ func uniqueComposeDirs(files []string) []string {
 		if file == "" {
 			continue
 		}
-		_, stack := composeDirForFile(file)
+		stack := composeDirForFile(file)
 		if stack != "" {
 			seen[stack] = struct{}{}
 		}
@@ -88,25 +88,25 @@ func uniqueComposeDirs(files []string) []string {
 	return dirs
 }
 
-func composeDirForFile(path string) (string, string) {
+func composeDirForFile(path string) string {
 	clean := filepath.ToSlash(strings.TrimPrefix(path, "./"))
 	parts := strings.Split(clean, "/")
 	if len(parts) < 2 || parts[0] == "" {
-		return "", ""
+		return ""
 	}
 
 	if len(parts) >= 3 && parts[1] != "" {
 		subdir := filepath.Join(parts[0], parts[1])
 		if _, err := os.Stat(filepath.Join(subdir, "docker-compose.yaml")); err == nil {
-			return subdir, parts[0] + "/" + parts[1]
+			return parts[0] + "/" + parts[1]
 		}
 	}
 
 	top := parts[0]
 	if _, err := os.Stat(filepath.Join(top, "docker-compose.yaml")); err == nil {
-		return top, top
+		return top
 	}
-	return "", ""
+	return ""
 }
 
 func appendOutput(path, key, value string) error {
