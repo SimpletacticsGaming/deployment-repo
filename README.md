@@ -8,10 +8,14 @@ If you want to deploy the services, you have to adjust the `docker-compose.yaml`
 The file contains the configuration for the services and their dependencies like environment 
 variables or secrets. 
 Each stage has its own configuration which resides in the stage folder (currently: prod and dev).
-- For dev deployment, use the [`docker-compose.yml`](dev/docker-compose.yaml) in the [`dev`](dev) directory.
-- For production, use the [`docker-compose.yaml`](prod/docker-compose.yaml) in the [`prod`](prod) directory.
+Deployment uses a single script that deploys every directory that contains a `docker-compose.yaml`.
+Each stack name matches the directory name.
 
 In most cases you only have to change the image tag to your needs.
+
+### Deploy
+- Deploy all stacks (one per directory): `go run deploy.go`
+- Deploy specific stacks by directory name: `go run deploy.go dev prod`
 
 ### Workflow
 1. Create a new branch for your changes.

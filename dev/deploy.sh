@@ -1,1 +1,0 @@
-docker stack deploy -d --compose-file docker-compose.yaml $1

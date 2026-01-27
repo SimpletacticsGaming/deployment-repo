@@ -1,0 +1,39 @@
+on:
+  push:
+    branches-ignore: [main]
+    paths: ['**/docker-compose.yaml']
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.changed.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22.x"
+
+      - id: changed
+        name: Detect changed compose directories
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+        run: go run ./scripts/detect-changed.go
+
+  validate:
+    runs-on: ubuntu-latest
+    needs: detect
+    strategy:
+      matrix:
+        include: ${{ fromJson(needs.detect.outputs.matrix) }}
+    environment:
+      name: ${{ matrix.env }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate docker compose file
+        run: docker compose -f ${{ matrix.dir }}/docker-compose.yaml config
+

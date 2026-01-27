@@ -1,0 +1,86 @@
+on:
+  workflow_call:
+    inputs:
+      matrix:
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    if: ${{ inputs.matrix && inputs.matrix != '' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include: ${{ fromJson(inputs.matrix) }}
+    environment:
+      name: ${{ matrix.env }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate docker compose file
+        run: docker compose -f ${{ matrix.dir }}/docker-compose.yaml config
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.5"
+
+      - name: Build deploy binary
+        run: go build -o deploy ./deploy.go
+
+      - name: Print matrix directory
+        run: echo "Deploying stack in directory ${{ matrix.dir }}"
+
+      - name: Ensure target directory exists
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          fingerprint: ${{ secrets.FINGERPRINT }}
+          script: |
+            mkdir -p ${{ secrets.TARGET_BASE_PATH }}/${{ matrix.dir }}
+
+      - name: Copy compose directory to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          fingerprint: ${{ secrets.FINGERPRINT }}
+          strip_components: 2
+          source: ${{ matrix.dir }}/docker-compose.yaml
+          target: ${{ secrets.TARGET_BASE_PATH }}/${{ matrix.dir }}
+          overwrite: true
+
+      - name: Copy deploy binary to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          fingerprint: ${{ secrets.FINGERPRINT }}
+          source: deploy
+          target: ${{ secrets.TARGET_BASE_PATH }}/${{ matrix.dir }}
+          overwrite: true
+
+      - name: Deploy stack
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          fingerprint: ${{ secrets.FINGERPRINT }}
+          script: |
+            cd ${{ secrets.TARGET_BASE_PATH }}/${{ matrix.dir }}
+            chmod +x deploy
+            ./deploy $(echo "${{ matrix.dir }}" | tr / -)
+
+      - name: Ensure target directory is removed
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          fingerprint: ${{ secrets.FINGERPRINT }}
+          script: |
+            rm -r ${{ secrets.TARGET_BASE_PATH }}/${{ matrix.dir }}

@@ -1,7 +1,14 @@
 services:
   frontend:
-    image: registry.simpletactics.de/sitafrontend:2.5.1
+    image: registry.simpletactics.de/sitafrontend:2026-01-26.146
     deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 500M
+        reservations:
+          cpus: '0.25'
+          memory: 250M
       replicas: 1
       update_config:
         parallelism: 1
@@ -14,6 +21,13 @@ services:
   backend:
     image: registry.simpletactics.de/sitabackend:2.5.1
     deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 500M
+        reservations:
+          cpus: '0.25'
+          memory: 250M
       replicas: 1
       update_config:
         parallelism: 1
@@ -28,16 +42,23 @@ services:
       - DB_USERNAME
       - DB_PASSWORD
       - SITA_BOT_ALERTING_URL
-      - source: DB_CONNECTION_STRING_PROD
+      - source: DB_CONNECTION_STRING_DEV
         target: DB_CONNECTION_STRING
         mode: 0400
-      - source: SITA_BOT_ALERTING_CHANNEL_ID_PROD
+      - source: SITA_BOT_ALERTING_CHANNEL_ID_DEV
         target: SITA_BOT_ALERTING_CHANNEL_ID
         mode: 0400
 
   socket:
     image: registry.simpletactics.de/sitasocket:1.0.0
     deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+        reservations:
+          cpus: '0.25'
+          memory: 20M
       replicas: 1
       update_config:
         parallelism: 1
@@ -56,9 +77,9 @@ secrets:
     external: true
   DB_PASSWORD:
     external: true
-  DB_CONNECTION_STRING_PROD:
+  DB_CONNECTION_STRING_DEV:
     external: true
   SITA_BOT_ALERTING_URL:
     external: true
-  SITA_BOT_ALERTING_CHANNEL_ID_PROD:
+  SITA_BOT_ALERTING_CHANNEL_ID_DEV:
     external: true

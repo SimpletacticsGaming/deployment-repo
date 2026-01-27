@@ -1,0 +1,23 @@
+services:
+  whoogle-search:
+    image: benbusby/whoogle-search:latest
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.75'
+          memory: 500M
+        reservations:
+          cpus: '0.5'
+          memory: 300M
+      replicas: 1
+    secrets:
+      - WHOOGLE_PASS
+      - WHOOGLE_USER
+
+secrets:
+  WHOOGLE_PASS:
+    external: true
+  WHOOGLE_USER:
+    external: true
+
