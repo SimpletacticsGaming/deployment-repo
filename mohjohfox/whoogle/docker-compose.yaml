@@ -14,6 +14,13 @@ services:
     secrets:
       - WHOOGLE_PASS
       - WHOOGLE_USER
+    entrypoint: [ '/bin/sh', '-c', 'export WHOOGLE_USER=$$(cat /var/run/secrets/WHOOGLE_USER) ; export WHOOGLE_PASS=$$(cat /var/run/secrets/WHOOGLE_PASS) ; source /entrypoint.sh' ]
+    networks:
+      - main
+
+networks:
+  main:
+    external: true
 
 secrets:
   WHOOGLE_PASS:
