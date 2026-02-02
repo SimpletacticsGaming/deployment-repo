@@ -29,8 +29,6 @@ jobs:
     strategy:
       matrix:
         include: ${{ fromJson(needs.detect.outputs.matrix) }}
-    environment:
-      name: ${{ matrix.env }}
     steps:
       - uses: actions/checkout@v4
 
