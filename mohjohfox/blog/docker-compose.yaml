@@ -1,0 +1,19 @@
+services:
+  blog:
+    image: ghcr.io/mohjohfox/blog:latest
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.75'
+          memory: 500M
+        reservations:
+          cpus: '0.5'
+          memory: 300M
+      replicas: 1
+    networks:
+      - main
+
+networks:
+  main:
+    external: true
