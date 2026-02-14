@@ -1,6 +1,6 @@
 services:
   frontend:
-    image: registry.simpletactics.de/sitafrontend:2026-02-13.159
+    image: registry.simpletactics.de/sitafrontend:2026-02-14.160
     deploy:
       resources:
         limits:
