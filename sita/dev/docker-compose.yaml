@@ -19,7 +19,7 @@ services:
       - main
 
   backend:
-    image: registry.simpletactics.de/sitabackend:2026-02-09.133
+    image: registry.simpletactics.de/sitabackend:2026-02-15.141
     deploy:
       resources:
         limits:
