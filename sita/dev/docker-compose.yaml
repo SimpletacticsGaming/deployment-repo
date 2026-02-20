@@ -1,6 +1,6 @@
 services:
   frontend:
-    image: registry.simpletactics.de/sitafrontend:2026-02-19.175
+    image: registry.simpletactics.de/sitafrontend:2026-02-20.178
     deploy:
       resources:
         limits:
@@ -19,7 +19,7 @@ services:
       - main
 
   backend:
-    image: registry.simpletactics.de/sitabackend:2026-02-16.151
+    image: registry.simpletactics.de/sitabackend:2026-02-20.152
     deploy:
       resources:
         limits:
