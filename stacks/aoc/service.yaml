@@ -1,0 +1,36 @@
+version: "1"
+
+stack:
+  name: aoc
+  description: "AOC Application Stack"
+
+services:
+  frontend:
+    image:
+      repository: ghcr.io/steffenburgert/frontend
+      tag: "latest"
+    replicas: 1
+    resources:
+      limits:
+        cpu: "0.50"
+        memory: "500M"
+      reservations:
+        cpu: "0.25"
+        memory: "250M"
+    restart:
+      condition: on-failure
+
+  backend:
+    image:
+      repository: ghcr.io/steffenburgert/backend
+      tag: "latest"
+    replicas: 1
+    resources:
+      limits:
+        cpu: "0.50"
+        memory: "500M"
+      reservations:
+        cpu: "0.25"
+        memory: "250M"
+    restart:
+      condition: on-failure

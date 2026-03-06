@@ -1,0 +1,14 @@
+services:
+  frontend:
+    version: "2.5.2"
+
+  backend:
+    version: "2.5.1"
+    secrets:
+      - name: DB_USERNAME
+      - name: DB_PASSWORD
+      - name: SITA_BOT_ALERTING_URL
+      - source: DB_CONNECTION_STRING_PROD
+        target: DB_CONNECTION_STRING
+      - source: SITA_BOT_ALERTING_CHANNEL_ID_PROD
+        target: SITA_BOT_ALERTING_CHANNEL_ID
