@@ -1,0 +1,27 @@
+version: "1"
+
+stack:
+  name: mohjohfox-blog
+  description: "MohjohFox Blog Stack"
+
+services:
+  blog:
+    image:
+      repository: ghcr.io/mohjohfox/blog
+      tag: "latest"
+    replicas: 1
+    resources:
+      limits:
+        cpu: "0.75"
+        memory: "500M"
+      reservations:
+        cpu: "0.5"
+        memory: "300M"
+    restart:
+      condition: on-failure
+    networks:
+      - main
+
+networks:
+  main:
+    external: true

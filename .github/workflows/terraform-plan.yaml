@@ -1,0 +1,107 @@
+name: Terraform Plan
+
+on:
+  pull_request:
+    paths:
+      - "infra/**"
+      - "stacks/**"
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      dev: ${{ steps.changes.outputs.dev }}
+      prod: ${{ steps.changes.outputs.prod }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed environments
+        id: changes
+        run: |
+          # Check if dev-related files changed
+          if git diff --name-only origin/main...HEAD | grep -qE '^(infra/(modules|environments/dev)|stacks/.*/overrides/dev\.yaml|stacks/.*/service\.yaml)'; then
+            echo "dev=true" >> $GITHUB_OUTPUT
+          else
+            echo "dev=false" >> $GITHUB_OUTPUT
+          fi
+
+          # Check if prod-related files changed
+          if git diff --name-only origin/main...HEAD | grep -qE '^(infra/(modules|environments/prod)|stacks/.*/overrides/prod\.yaml|stacks/.*/service\.yaml)'; then
+            echo "prod=true" >> $GITHUB_OUTPUT
+          else
+            echo "prod=false" >> $GITHUB_OUTPUT
+          fi
+
+  plan-dev:
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.dev == 'true'
+    env:
+      TF_VAR_docker_host: ${{ secrets.DOCKER_HOST }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7"
+
+      - name: Terraform Init (Dev)
+        working-directory: infra/environments/dev
+        env:
+          PG_CONN_STR: ${{ secrets.TF_BACKEND_CONN_STR }}
+        run: terraform init
+
+      - name: Terraform Plan (Dev)
+        id: plan-dev
+        working-directory: infra/environments/dev
+        env:
+          PG_CONN_STR: ${{ secrets.TF_BACKEND_CONN_STR }}
+        run: |
+          terraform plan -no-color -out=tfplan 2>&1 | tee plan_output.txt
+          echo "plan<<EOF" >> $GITHUB_OUTPUT
+          cat plan_output.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Check Plan Status
+        if: steps.plan-dev.outcome == 'failure'
+        run: exit 1
+
+  plan-prod:
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.prod == 'true'
+    env:
+      TF_VAR_docker_host: ${{ secrets.DOCKER_HOST }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7"
+
+      - name: Terraform Init (Prod)
+        working-directory: infra/environments/prod
+        env:
+          PG_CONN_STR: ${{ secrets.TF_BACKEND_CONN_STR }}
+        run: terraform init
+
+      - name: Terraform Plan (Prod)
+        id: plan-prod
+        working-directory: infra/environments/prod
+        env:
+          PG_CONN_STR: ${{ secrets.TF_BACKEND_CONN_STR }}
+        run: |
+          terraform plan -no-color -out=tfplan 2>&1 | tee plan_output.txt
+          echo "plan<<EOF" >> $GITHUB_OUTPUT
+          cat plan_output.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Check Plan Status
+        if: steps.plan-prod.outcome == 'failure'
+        run: exit 1
