@@ -1,0 +1,42 @@
+services:
+  nexus:
+    image: sonatype/nexus3
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 500M
+        reservations:
+          cpus: "0.25"
+          memory: 250M
+      replicas: 1
+      update_config:
+        parallelism: 1
+        order: start-first
+        failure_action: rollback
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+    environment:
+      - INSTALL4J_ADD_VM_PARAMS=-Xms1g -Xmx1g -XX:MaxDirectMemorySize=512m
+    volumes:
+      - nexus-data:/nexus-data
+    healthcheck:
+      test:
+        ["CMD", "curl", "-f", "http://localhost:8081/service/rest/v1/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+    networks:
+      - main
+
+volumes:
+  nexus-data:
+    driver: local
+
+networks:
+  main:
+    external: true
