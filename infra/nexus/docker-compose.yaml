@@ -5,10 +5,10 @@ services:
       resources:
         limits:
           cpus: "0.50"
-          memory: 500M
+          memory: 2000M
         reservations:
           cpus: "0.25"
-          memory: 250M
+          memory: 1500M
       replicas: 1
       update_config:
         parallelism: 1

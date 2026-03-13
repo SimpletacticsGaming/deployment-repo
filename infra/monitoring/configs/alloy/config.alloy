@@ -1,0 +1,180 @@
+// Alloy Configuration for Docker Swarm Monitoring
+
+// ============================================================================
+// Docker Discovery
+// ============================================================================
+
+discovery.docker "containers" {
+  host = "unix:///var/run/docker.sock"
+  refresh_interval = "30s"
+}
+
+// ============================================================================
+// Log Collection
+// ============================================================================
+
+// Collect logs from all Docker containers
+loki.source.docker "docker_logs" {
+  host = "unix:///var/run/docker.sock"
+  targets = discovery.docker.containers.targets
+  forward_to = [loki.process.docker_logs.receiver]
+  refresh_interval = "30s"
+}
+
+// Process and enrich log labels
+loki.process "docker_logs" {
+  forward_to = [loki.write.loki.receiver]
+
+  // Extract container name
+  stage.docker {}
+
+  // Add Swarm-specific labels
+  stage.label_keep {
+    values = [
+      "container_name",
+      "compose_project",
+      "compose_service",
+      "com_docker_swarm_service_name",
+      "com_docker_swarm_task_name",
+      "com_docker_stack_namespace",
+    ]
+  }
+
+  // Rename labels for consistency
+  stage.labels {
+    values = {
+      swarm_service = "com_docker_swarm_service_name",
+      swarm_task = "com_docker_swarm_task_name",
+      stack_namespace = "com_docker_stack_namespace",
+    }
+  }
+
+  // Drop internal labels after mapping
+  stage.label_drop {
+    values = [
+      "com_docker_swarm_service_name",
+      "com_docker_swarm_task_name",
+      "com_docker_stack_namespace",
+    ]
+  }
+}
+
+// Send logs to Loki
+loki.write "loki" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}
+
+// ============================================================================
+// Metrics Collection
+// ============================================================================
+
+// Relabel Docker targets for Prometheus scraping
+discovery.relabel "docker_metrics" {
+  targets = discovery.docker.containers.targets
+
+  // Only scrape containers with prometheus.io/scrape=true label
+  rule {
+    source_labels = ["__meta_docker_container_label_prometheus_io_scrape"]
+    regex = "true"
+    action = "keep"
+  }
+
+  // Use custom port if specified
+  rule {
+    source_labels = ["__meta_docker_container_label_prometheus_io_port"]
+    regex = "(\\d+)"
+    target_label = "__address__"
+    replacement = "${1}"
+    action = "replace"
+  }
+
+  // Construct address from container IP and port
+  rule {
+    source_labels = ["__meta_docker_network_ip", "__meta_docker_container_label_prometheus_io_port"]
+    separator = ":"
+    target_label = "__address__"
+    regex = "(.+):(.+)"
+    replacement = "${1}:${2}"
+  }
+
+  // Use custom metrics path if specified
+  rule {
+    source_labels = ["__meta_docker_container_label_prometheus_io_path"]
+    target_label = "__metrics_path__"
+    regex = "(.+)"
+  }
+
+  // Add container name label
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex = "/(.*)"
+    target_label = "container_name"
+  }
+
+  // Add Swarm service labels
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_swarm_service_name"]
+    target_label = "swarm_service"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_swarm_task_name"]
+    target_label = "swarm_task"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_stack_namespace"]
+    target_label = "stack_namespace"
+  }
+}
+
+// Scrape metrics from discovered containers
+prometheus.scrape "docker" {
+  targets = discovery.relabel.docker_metrics.output
+  forward_to = [prometheus.remote_write.prometheus.receiver]
+  scrape_interval = "15s"
+}
+
+// Send metrics to Prometheus
+prometheus.remote_write "prometheus" {
+  endpoint {
+    url = "http://prometheus:9090/api/v1/write"
+  }
+}
+
+// ============================================================================
+// OTLP Receivers (for future OpenTelemetry integration)
+// ============================================================================
+
+otelcol.receiver.otlp "default" {
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+  http {
+    endpoint = "0.0.0.0:4318"
+  }
+
+  output {
+    metrics = [otelcol.processor.batch.default.input]
+    logs = [otelcol.processor.batch.default.input]
+    traces = [otelcol.processor.batch.default.input]
+  }
+}
+
+otelcol.processor.batch "default" {
+  output {
+    metrics = [otelcol.exporter.prometheus.default.input]
+    logs = [otelcol.exporter.loki.default.input]
+    traces = []
+  }
+}
+
+otelcol.exporter.prometheus "default" {
+  forward_to = [prometheus.remote_write.prometheus.receiver]
+}
+
+otelcol.exporter.loki "default" {
+  forward_to = [loki.write.loki.receiver]
+}
