@@ -1,0 +1,16 @@
+services:
+  frontend:
+    image:
+      tag: "2026-02-24.191"
+
+  backend:
+    image:
+      tag: "2026-02-24.164"
+    secrets:
+      - name: DB_USERNAME
+      - name: DB_PASSWORD
+      - name: SITA_BOT_ALERTING_URL
+      - source: DB_CONNECTION_STRING_DEV_PGBOUNCER
+        target: DB_CONNECTION_STRING
+      - source: SITA_BOT_ALERTING_CHANNEL_ID_DEV
+        target: SITA_BOT_ALERTING_CHANNEL_ID

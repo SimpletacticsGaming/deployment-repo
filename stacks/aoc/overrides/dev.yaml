@@ -1,0 +1,8 @@
+services:
+  frontend:
+    image:
+      tag: "0.0.1-snapshot-aoc-infra"
+
+  backend:
+    image:
+      tag: "0.0.1-snapshot-aoc-infra"

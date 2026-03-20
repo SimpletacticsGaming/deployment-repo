@@ -1,0 +1,113 @@
+// =============================================================================
+// Alloy Configuration
+// =============================================================================
+
+// -----------------------------------------------------------------------------
+// Docker Discovery
+// -----------------------------------------------------------------------------
+
+discovery.docker "containers" {
+  host = "unix:///var/run/docker.sock"
+}
+
+// Relabel discovered Docker targets for meaningful labels
+discovery.relabel "docker_labels" {
+  targets = discovery.docker.containers.targets
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    target_label  = "container_name"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_id"]
+    target_label  = "container_id"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_network_ip"]
+    target_label  = "network_ip"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_project"]
+    target_label  = "compose_project"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+    target_label  = "compose_service"
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Log Collection — Docker container logs via Loki
+// -----------------------------------------------------------------------------
+
+loki.source.docker "containers" {
+  host    = "unix:///var/run/docker.sock"
+  targets = discovery.docker.containers.targets
+
+  labels  = {
+    job = "docker",
+  }
+
+  forward_to = [loki.relabel.docker_logs.receiver]
+}
+
+loki.relabel "docker_logs" {
+  forward_to = [loki.write.loki.receiver]
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    target_label  = "container_name"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_project"]
+    target_label  = "compose_project"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+    target_label  = "compose_service"
+  }
+}
+
+loki.write "loki" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Metrics — Scrape self and remote-write to Prometheus
+// -----------------------------------------------------------------------------
+
+prometheus.scrape "alloy_self" {
+  targets = [{
+    __address__ = "localhost:12345",
+    job         = "alloy",
+  }]
+
+  scrape_interval = "15s"
+
+  forward_to = [prometheus.remote_write.prometheus.receiver]
+}
+
+// Scrape metrics from discovered Docker containers that expose a /metrics
+// endpoint. Containers can opt-in by setting the label:
+//   prometheus.io/scrape=true
+//   prometheus.io/port=<port>
+prometheus.scrape "docker_containers" {
+  targets         = discovery.relabel.docker_labels.output
+  scrape_interval = "30s"
+
+  forward_to = [prometheus.remote_write.prometheus.receiver]
+}
+
+prometheus.remote_write "prometheus" {
+  endpoint {
+    url = "http://prometheus:9090/api/v1/write"
+  }
+}

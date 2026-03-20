@@ -1,0 +1,8 @@
+docker_host = "ssh://deploy@dev.your-vps.com:22"
+
+# Nexus
+nexus_stack_name = "nexus-dev"
+nexus_port       = 8081
+
+# Monitoring
+grafana_admin_password = "change-me"
