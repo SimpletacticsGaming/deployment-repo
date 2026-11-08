@@ -91,6 +91,8 @@ services:
       - DB_PASSWORD
       - source: DB_CONNECTION_STRING_DEV
         target: DB_CONNECTION_STRING
+        uid: "100"
+        gid: "101"
         mode: 0400
 
 networks:
