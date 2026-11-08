@@ -1,13 +1,12 @@
 services:
   frontend:
-    image: registry.simpletactics.de/sitafrontend:2026-02-24.191
+    image: registry.simpletactics.de/sitafrontend:2026-11-08.233
     deploy:
       resources:
         limits:
           cpus: '0.50'
           memory: 500M
         reservations:
-          cpus: '0.25'
           memory: 250M
       replicas: 1
       update_config:
@@ -19,7 +18,7 @@ services:
       - main
 
   backend:
-    image: registry.simpletactics.de/sitabackend:2026-02-24.164
+    image: registry.simpletactics.de/sitabackend:2.6.0-g02d8f6a
     deploy:
       resources:
         limits:
@@ -67,6 +66,32 @@ services:
         condition: on-failure
     networks:
       - main
+
+  wiki:
+    image: registry.simpletactics.de/wikiservice:1.0.0-g9508bd9
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 500M
+        reservations:
+          memory: 250M
+      replicas: 1
+      update_config:
+        parallelism: 1
+        order: start-first
+      restart_policy:
+        condition: on-failure
+    environment:
+      - TZ=Europe/Berlin
+    networks:
+      - main
+    secrets:
+      - DB_USERNAME
+      - DB_PASSWORD
+      - source: DB_CONNECTION_STRING_DEV
+        target: DB_CONNECTION_STRING
+        mode: 0400
 
 networks:
   main:
